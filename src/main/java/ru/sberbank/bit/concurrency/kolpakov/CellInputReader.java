@@ -3,10 +3,10 @@ package ru.sberbank.bit.concurrency.kolpakov;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 import static ru.sberbank.bit.concurrency.kolpakov.GameOfLifeUtils.calcLineSizeInLongs;
@@ -31,9 +31,8 @@ public class CellInputReader {
         final long[] buffer = new long[bufferSize];
         int numberOfUsedThreads = Math.min(numberOfThreads, fieldSize);
         log.info("Number of used threads to read cell input {}", numberOfUsedThreads);
-        IntStream.range(0, numberOfUsedThreads)
-                .parallel()
-                .mapToObj(i -> new Runnable() {
+        CompletableFuture[] readers = IntStream.range(0, numberOfUsedThreads)
+                .mapToObj(i -> CompletableFuture.runAsync(new Runnable() {
                     @Override
                     public void run() {
                         int fromLine = calcFromLineIndex(i);
@@ -52,21 +51,19 @@ public class CellInputReader {
                         int tmpIndex = fieldSize / numberOfUsedThreads * i;
                         return tmpIndex > fieldSize ? fieldSize : tmpIndex;
                     }
-                })
-                .map(executorService::submit)
-                .forEach(future -> {
-                    try {
-                        future.get();
-                        log.info("thread finished reading its part of chars");
-                    } catch (InterruptedException | ExecutionException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-        executorService.shutdown();
+                }, executorService))
+                .toArray(CompletableFuture[]::new);
         try {
-            executorService.awaitTermination(Integer.MAX_VALUE, TimeUnit.DAYS);
-            executorService.shutdownNow();
-        } catch (InterruptedException e) {
+            CompletableFuture.allOf(readers)
+                    .handleAsync((result, throwable) -> {
+                        if (throwable == null) {
+                            return result;
+                        } else {
+                            throw new RuntimeException(throwable);
+                        }
+                    })
+                    .get();
+        } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
         sizeOfReadField = fieldSize;

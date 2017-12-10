@@ -4,10 +4,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static ru.sberbank.bit.concurrency.kolpakov.TestUtils.getHugeTestData;
 import static ru.sberbank.bit.concurrency.kolpakov.TestUtils.getTestData;
 
@@ -33,7 +30,7 @@ public class GameOfLifeFieldTransformerTest {
 
     @Test
     public void runHugeTransform() {
-        int size = 16_000_000;
+        int size = 4_000_000;
         int T = 1_000;
         int fieldSize = Double.valueOf(Math.sqrt(size)).intValue();
         char[] testData = getHugeTestData(size);
@@ -41,7 +38,7 @@ public class GameOfLifeFieldTransformerTest {
         GameOfLifeField field = new GameOfLifeField(readData, fieldSize);
         GameOfLifeFieldTransformer transformer = new GameOfLifeFieldTransformer(4);
         for (int i = 0; i < T; i++) {
-            if((10 * i) % T == 0) {
+            if ((10 * i) % T == 0) {
                 log.info("{}/{} transofrmations has been passed", i, T);
             }
             field = transformer.generateNextField(field);

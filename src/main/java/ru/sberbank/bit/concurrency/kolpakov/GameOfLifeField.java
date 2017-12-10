@@ -3,15 +3,31 @@ package ru.sberbank.bit.concurrency.kolpakov;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static ru.sberbank.bit.concurrency.kolpakov.GameOfLifeUtils.calcLineSizeInLongs;
+
 public class GameOfLifeField {
     public static final Logger log = LoggerFactory.getLogger(GameOfLifeField.class);
 
+    private final long[] oldField;
     private final long[] field;
     private final int size;
 
     public GameOfLifeField(long[] field, int size) {
+        this(field, size, new long[calcLineSizeInLongs(size) * size]);
+    }
+
+    public GameOfLifeField(long[] field, int size, long[] oldField) {
+        this.oldField = oldField;
         this.field = field;
         this.size = size;
+    }
+
+    public long[] getOldField() {
+        return oldField;
+    }
+
+    public long[] getField() {
+        return field;
     }
 
     public int getSize() {

@@ -3,6 +3,7 @@ package ru.sberbank.bit.concurrency.kolpakov;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,11 +26,10 @@ public class GameOfLifeFieldTransformer {
     public GameOfLifeField generateNextField(GameOfLifeField currentField) {
         int fieldSize = currentField.getSize();
         int lineSizeInLongs = calcLineSizeInLongs(fieldSize);
-        final long[] buffer = new long[calcLineSizeInLongs(fieldSize) * fieldSize];
+        final long[] buffer = currentField.getOldField();
         int numberOfUsedThreads = Math.min(numberOfThreads, lineSizeInLongs);
-        IntStream.range(0, numberOfUsedThreads)
-                .parallel()
-                .mapToObj(runnableIndex -> new Runnable() {
+        CompletableFuture[] transformers = IntStream.range(0, numberOfUsedThreads)
+                .mapToObj(runnableIndex -> CompletableFuture.runAsync(new Runnable() {
                     @Override
                     public void run() {
                         int fromIndex = calcFromIndex(runnableIndex);
@@ -64,15 +64,20 @@ public class GameOfLifeFieldTransformer {
                         int fromLineIndex = Math.min(lineSizeInLongs, tmpFromLineIndex);
                         return fromLineIndex * fieldSize;
                     }
-                })
-                .map(executorService::submit)
-                .forEach(future -> {
-                    try {
-                        future.get();
-                    } catch (InterruptedException | ExecutionException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-        return new GameOfLifeField(buffer, fieldSize);
+                }, executorService))
+                .toArray(CompletableFuture[]::new);
+        try {
+            CompletableFuture.allOf(transformers)
+                    .handleAsync((result, throwable) -> {
+                        if(throwable != null) {
+                            throw new RuntimeException(throwable);
+                        } else {
+                            return result;
+                        }
+                    }).get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+        return new GameOfLifeField(buffer, fieldSize, currentField.getField());
     }
 }
