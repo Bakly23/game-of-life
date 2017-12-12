@@ -3,6 +3,11 @@ package ru.sberbank.bit.concurrency.kolpakov;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -17,11 +22,16 @@ public class CellInputReader {
 
     private final ExecutorService executorService;
     private final int numberOfThreads;
-    private int sizeOfReadField = -1;
+    private int numberOfTries = -1;
+    private int fieldSize = -1;
 
     public CellInputReader(int numberOfThreads) {
         this.numberOfThreads = numberOfThreads;
         this.executorService = Executors.newFixedThreadPool(numberOfThreads);
+    }
+
+    public long[] read(String inputFile) {
+        return read(readFile(inputFile));
     }
 
     public long[] read(char[] cellInput) {
@@ -66,8 +76,26 @@ public class CellInputReader {
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
-        sizeOfReadField = fieldSize;
         return buffer;
+    }
+
+    private char[] readFile(String inputFile) {
+        Path inputPath = Paths.get(inputFile);
+        char[] result = null;
+        try (BufferedReader reader = Files.newBufferedReader(inputPath)) {
+            String firstLine = reader.readLine();
+            fieldSize = Integer.parseInt(firstLine.split(" ")[0]);
+            numberOfTries = Integer.parseInt(firstLine.split(" ")[1]);
+            result = new char[fieldSize * fieldSize];
+            for (int i = 0; i < fieldSize; i++) {
+                reader.read(result, i * fieldSize, fieldSize);
+                reader.skip(2); //skip \r\n
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return result;
     }
 
     private int calcBufferSize(int fieldSize) {
@@ -82,11 +110,11 @@ public class CellInputReader {
         return Double.valueOf(tmpDoubleSize).intValue();
     }
 
-    public int getSizeOfReadField() {
-        if (sizeOfReadField == -1) {
-            throw new IllegalStateException("nothing was read yet");
-        } else {
-            return sizeOfReadField;
-        }
+    public int getNumberOfTries() {
+        return numberOfTries;
+    }
+
+    public int getFieldSize() {
+        return fieldSize;
     }
 }

@@ -14,6 +14,7 @@ import static ru.sberbank.bit.concurrency.kolpakov.GameOfLifeUtils.ONE;
 import static ru.sberbank.bit.concurrency.kolpakov.GameOfLifeUtils.ZERO;
 import static ru.sberbank.bit.concurrency.kolpakov.TestUtils.getHugeTestData;
 import static ru.sberbank.bit.concurrency.kolpakov.TestUtils.getTestData;
+import static ru.sberbank.bit.concurrency.kolpakov.TestUtils.writerOutputToCharArray;
 
 public class GameOfLifeFieldTest {
     private static final Logger log = LoggerFactory.getLogger(GameOfLifeField.class);
@@ -44,7 +45,7 @@ public class GameOfLifeFieldTest {
 
     @Test
     public void testGetForHugeTestData() {
-        int size = 400_000_000;
+        int size = 1_000_000;
         int fieldSize = Double.valueOf(Math.sqrt(size)).intValue();
         char[] testData = getHugeTestData(size);
         log.info("test data generated");
@@ -52,7 +53,7 @@ public class GameOfLifeFieldTest {
         log.info("converted from char to long");
         GameOfLifeField field = new GameOfLifeField(readData, fieldSize);
         log.info("loaded into field");
-        char[] writtenData = new GameOfLifeFieldWriter().write(field);
+        char[] writtenData = writerOutputToCharArray(new GameOfLifeFieldWriter().write(field));
         log.info("convertted from char to long");
         assertTrue(Arrays.equals(writtenData, testData));
     }

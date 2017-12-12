@@ -16,7 +16,7 @@ public class GameOfLifeFieldTransformerTest {
         GameOfLifeField field = new GameOfLifeField(getTestData(), 5);
         GameOfLifeFieldTransformer transformer = new GameOfLifeFieldTransformer(4);
         GameOfLifeField transformedField = transformer.generateNextField(field);
-        log.info("transformed values: " + new String(new GameOfLifeFieldWriter().write(transformedField)));
+        log.info("transformed values: {}", new GameOfLifeFieldWriter().write(transformedField));
         //survived
         assertEquals(1, transformedField.getValue(0, 0));
         assertEquals(1, transformedField.getValue(3, 2));
@@ -30,8 +30,8 @@ public class GameOfLifeFieldTransformerTest {
 
     @Test
     public void runHugeTransform() {
-        int size = 4_000_000;
-        int T = 1_000;
+        int size = 10_000;
+        int T = 1_0;
         int fieldSize = Double.valueOf(Math.sqrt(size)).intValue();
         char[] testData = getHugeTestData(size);
         long[] readData = new CellInputReader(4).read(testData);

@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertTrue;
+import static ru.sberbank.bit.concurrency.kolpakov.TestUtils.writerOutputToCharArray;
 
 
 public class CellInputReaderTest {
@@ -18,7 +19,8 @@ public class CellInputReaderTest {
     public void testShort() {
         char[] testData = "100110001".toCharArray();
         long[] result = cellInputReader.read(testData);
-        char[] writtenData = new GameOfLifeFieldWriter().write(new GameOfLifeField(result, 3));
+        char[] writtenData = writerOutputToCharArray(new GameOfLifeFieldWriter()
+                .write(new GameOfLifeField(result, 3)));
         assertTrue(Arrays.equals(testData, writtenData));
     }
 }

@@ -1,6 +1,8 @@
 package ru.sberbank.bit.concurrency.kolpakov;
 
+import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import static ru.sberbank.bit.concurrency.kolpakov.GameOfLifeUtils.ONE;
 import static ru.sberbank.bit.concurrency.kolpakov.GameOfLifeUtils.ZERO;
@@ -30,5 +32,11 @@ public class TestUtils {
             }
         }
         return testData;
+    }
+
+    public static char[] writerOutputToCharArray(List<String> writerOutput) {
+        return writerOutput.stream()
+                .collect(Collectors.joining(""))
+                .toCharArray();
     }
 }
