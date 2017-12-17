@@ -20,7 +20,7 @@ public class GameOfLifeTest {
 
     @Test
     public void testGame() throws Exception {
-        testOneGame("src/main/resources/input1000.txt", "src/main/resources/output1000.txt");
+        testOneGame("src/main/resources/input100.txt", "src/main/resources/output100.txt");
     }
 
     private void testOneGame(String inputFile, String expectedOutputFile) throws FileNotFoundException {
