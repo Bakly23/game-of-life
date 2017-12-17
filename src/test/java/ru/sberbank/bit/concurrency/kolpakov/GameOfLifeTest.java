@@ -4,11 +4,16 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 import static java.util.Arrays.stream;
+import static java.util.stream.Collectors.*;
 import static java.util.stream.Collectors.joining;
 import static org.junit.Assert.assertEquals;
 
@@ -20,11 +25,14 @@ public class GameOfLifeTest {
 
     @Test
     public void testGame() throws Exception {
-        testOneGame("src/main/resources/input1000.txt", "src/main/resources/output1000.txt");
+        //testOneGame("src/main/resources/input.txt", "src/main/resources/output.txt");
+        testOneGame("src/main/resources/input100.txt", "src/main/resources/output100.txt");
+        //testOneGame("src/main/resources/input1000.txt", "src/main/resources/output1000.txt");
     }
 
-    private void testOneGame(String inputFile, String expectedOutputFile) throws FileNotFoundException {
+    private void testOneGame(String inputFile, String expectedOutputFile) throws IOException {
         List<String> result = gameOfLife.play(inputFile);
+        Files.write(Paths.get("result100.txt"), result.stream().collect(joining("\n")).getBytes());
         assertEquals(readFile(expectedOutputFile), result);
     }
 

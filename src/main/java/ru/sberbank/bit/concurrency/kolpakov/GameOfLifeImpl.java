@@ -13,7 +13,7 @@ public class GameOfLifeImpl implements GameOfLife {
     private final GameOfLifeFieldWriter writer;
 
     public GameOfLifeImpl(int numberOfThreads) {
-        reader = new CellInputReader(numberOfThreads);
+        reader = new CellInputReader();
         transformer = new GameOfLifeFieldTransformer(numberOfThreads);
         writer = new GameOfLifeFieldWriter();
     }
@@ -24,7 +24,7 @@ public class GameOfLifeImpl implements GameOfLife {
 
     @Override
     public List<String> play(String inputFile) {
-        GameOfLifeField result = new GameOfLifeField(reader.read(inputFile), reader.getFieldSize());
+        GameOfLifeField result = new GameOfLifeField(reader.readFile(inputFile), reader.getFieldSize());
         int n = reader.getNumberOfTries();
         for (int i = 0; i < n; i++) {
             if(i * 20 % n == 0) {
@@ -32,6 +32,7 @@ public class GameOfLifeImpl implements GameOfLife {
             }
             result = transformer.generateNextField(result);
         }
+        log.info("{}/{} steps were played", n, n);
         return writer.write(result);
     }
 }

@@ -11,11 +11,11 @@ public class GameOfLifeFieldWriter {
 
     public List<String> write(GameOfLifeField field) {
         return IntStream.range(0, field.getSize())
-                .parallel()
+                .sequential()
                 .mapToObj(i -> {
                     char[] line = new char[field.getSize()];
                     for (int j = 0; j < field.getSize(); j++) {
-                        long value = field.getValue(i, j);
+                        long value = field.getValueInCell(i, j);
                         if (value == 1L) {
                             line[j] = ONE;
                         } else if (value == 0L) {

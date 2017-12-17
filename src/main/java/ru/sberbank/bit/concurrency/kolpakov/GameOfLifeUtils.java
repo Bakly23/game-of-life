@@ -3,12 +3,13 @@ package ru.sberbank.bit.concurrency.kolpakov;
 public final class GameOfLifeUtils {
     public static final char ONE = '1';
     public static final char ZERO = '0';
+    public static final int WIDTH_OF_COLUMN = Long.SIZE - 2;
 
     private GameOfLifeUtils() {
     }
 
     public static int calcLineSizeInLongs(int lineSize) {
-        return lineSize / Long.SIZE + 1;
+        return lineSize / WIDTH_OF_COLUMN + 1;
     }
 
     public static long getOneBitAtPosition(int i) {
