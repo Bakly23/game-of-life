@@ -16,11 +16,14 @@ import static org.junit.Assert.assertEquals;
  * Created by Mintas on 12/10/2017.
  */
 public class GameOfLifeTest {
-    GameOfLife gameOfLife = new GameOfLifeImpl(4);
+    public static final int NUMBER_OF_THREADS = 4;
+    public static final String INPUT = "src/main/resources/input100.txt";
+    public static final String OUTPUT = "src/main/resources/output100.txt";
+    GameOfLife gameOfLife = new GameOfLifeImpl(NUMBER_OF_THREADS);
 
     @Test
     public void testGame() throws Exception {
-        testOneGame("src/main/resources/input100.txt", "src/main/resources/output100.txt");
+        testOneGame(INPUT, OUTPUT);
     }
 
     private void testOneGame(String inputFile, String expectedOutputFile) throws FileNotFoundException {
